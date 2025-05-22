@@ -1,8 +1,8 @@
 version: '3'
 services:
   libretv:
-    image: bestzwei/libretv:latest
-    container_name: libretv
+    image: bestzwei/KANetflix:latest
+    container_name: KANetflix
     ports:
       - "8899:80"
     environment:
