@@ -1082,7 +1082,7 @@ function playVideo(url, vod_name, sourceCode, episodeIndex = 0) {
     }
     
     // 在新窗口/标签页中打开播放页面
-    window.open(watchUrl, '_blank');
+    window.open(watchUrl, '_self');
 }
 
 // 弹出播放器页面
