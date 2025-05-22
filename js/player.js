@@ -234,7 +234,7 @@ function initializePageContent() {
     }
 
     // 设置页面标题
-    document.title = currentVideoTitle + ' - KANetflix播放器';
+    document.title = currentVideoTitle + ' - LibreTV播放器';
     document.getElementById('videoTitle').textContent = currentVideoTitle;
 
     // 初始化播放器
@@ -316,6 +316,15 @@ function handleKeyboardShortcuts(e) {
             e.preventDefault();
         }
     }
+
+    // f 键 = 切换全屏
+    if (e.key === 'f' || e.key === 'F') {
+        if (art) {
+            art.fullscreen = !art.fullscreen;
+            showShortcutHint('切换全屏', 'fullscreen');
+            e.preventDefault();
+        }
+    }
 }
 
 // 显示快捷键提示
@@ -334,8 +343,10 @@ function showShortcutHint(text, direction) {
 
     if (direction === 'left') {
         iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>';
-    } else {
+    } else if (direction === 'right') {
         iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>';
+    } else if (direction === 'fullscreen') {
+        iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"></path>';
     }
 
     // 显示提示
@@ -406,12 +417,12 @@ function initPlayer(videoUrl) {
         screenshot: true,
         setting: true,
         loop: false,
-        flip: true,
+        flip: false,
         playbackRate: true,
-        aspectRatio: true,
+        aspectRatio: false,
         fullscreen: true,
         fullscreenWeb: false,
-        subtitleOffset: true,
+        subtitleOffset: false,
         miniProgressBar: true,
         mutex: true,
         backdrop: true,
@@ -559,7 +570,7 @@ function initPlayer(videoUrl) {
         }
     });
 
-    art.on('video:loadmetadata', function() {
+    art.on('video:loadedmetadata', function() {
         document.getElementById('loading').style.display = 'none';
         videoHasEnded = false; // 视频加载时重置结束标志
         // 优先使用URL传递的position参数
@@ -649,9 +660,8 @@ function initPlayer(videoUrl) {
         // 绑定双击事件到视频容器
         if (art.video) {
             art.video.addEventListener('dblclick', () => {
-                if (art.fullScreen && typeof art.fullScreen.toggle === 'function') {
-                    art.fullScreen.toggle();
-                }
+                art.fullscreen = !art.fullscreen;
+                art.play();
             });
         }
     });
@@ -1146,6 +1156,7 @@ function startProgressSaveInterval() {
 
 // 保存当前播放进度
 function saveCurrentProgress() {
+    console.log('保存当前播放进度');
     if (!art || !art.video) return;
     const currentTime = art.video.currentTime;
     const duration = art.video.duration;
@@ -1184,7 +1195,7 @@ function saveCurrentProgress() {
                 }
             }
         } catch (e) {
-            // 忽略 viewingHistory 更新错误
+            console.log('同步更新 viewingHistory 中的进度失败', e);
         }
     } catch (e) {
         console.error('保存播放进度失败', e);
