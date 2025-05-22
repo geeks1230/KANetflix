@@ -398,13 +398,13 @@ function initPlayer(videoUrl, sourceCode) {
         chromecast: true,                // 启用Chromecast投屏功能
         contextmenu: [                   // 自定义右键菜单
             {
-                text: '关于 LibreTV',
-                link: 'https://github.com/LibreSpark/LibreTV'
+                text: '关于 KANetflix',
+                link: 'https://kanetflix.pages.dev/'
             },
             {
                 text: '问题反馈',
                 click: (player) => {
-                    window.open('https://github.com/LibreSpark/LibreTV/issues', '_blank');
+                    window.open('https://kanetflix.pages.dev/', '_blank');
                 }
             }
         ],
