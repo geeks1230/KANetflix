@@ -6,6 +6,9 @@
   <title>KANetflix - 影视App下载</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!-- 新增：Favicon图标 -->
+   <link rel="icon" href="/image/retrotv_5520.png"> type="image/png">
+      <link rel="apple-touch-icon" href="/image/retrotv_5520.png"> type="image/png">
   <script>
     tailwind.config = {
       theme: {
@@ -59,25 +62,17 @@
   <header class="fixed top-0 left-0 w-full bg-darker/80 backdrop-blur-md z-50 shadow-lg">
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
-        <div class="flex items-center">
-          <!-- 替换为实际图标路径 -->
+        <!-- 修改：添加链接使左上角logo可点击回到首页 -->
+        <a href="https://kanetflix.pages.dev/" class="flex items-center">
           <img src="/image/KANetflix.png" alt="KANetflix图标" class="w-10 h-10 rounded">
           <span class="ml-3 text-xl font-bold text-gradient">KANetflix</span>
-        </div>
-            <!-- Favicon -->
-    <link rel="icon" href="/image/retrotv_5520.png">
-    <link rel="apple-touch-icon" href="/image/retrotv_5520.png">
-    <link rel="manifest" href="manifest.json">
-    
-    <script src="libs/tailwindcss.min.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/index.css">
+        </a>
+        
         <nav class="hidden md:flex space-x-8">
           <a href="#download" class="text-text-secondary hover:text-text-primary transition-colors duration-200">下载</a>
           <a href="#faq" class="text-text-secondary hover:text-text-primary transition-colors duration-200">常见问题</a>
         </nav>
         
-        <!-- 修改：将"立即下载"按钮改为"回到首页"链接 -->
         <a href="https://kanetflix.pages.dev/" class="hidden md:block px-5 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors duration-200">
           <i class="fa fa-home mr-2"></i>回到首页
         </a>
@@ -93,7 +88,6 @@
       <div class="px-4 pt-2 pb-4 space-y-3">
         <a href="#download" class="block py-2 text-text-secondary hover:text-text-primary transition-colors duration-200">下载</a>
         <a href="#faq" class="block py-2 text-text-secondary hover:text-text-primary transition-colors duration-200">常见问题</a>
-        <!-- 修改：将"立即下载"按钮改为"回到首页"链接 -->
         <a href="https://kanetflix.pages.dev/" class="block py-2 px-4 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200">
           <i class="fa fa-home mr-2"></i>回到首页
         </a>
@@ -112,7 +106,6 @@
         <p class="text-text-secondary text-lg max-w-2xl mx-auto mb-10">
           KANetflix 是一款影视App，支持在 Mac、Windows、Android 和 iOS 设备上无缝播放精彩影视内容
         </p>
-        <!-- 修改：将下载按钮链接改为指定地址 -->
         <a href="https://easylink.cc/3l5m72" class="inline-flex items-center px-8 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-all duration-200 shadow-lg">
           <i class="fa fa-download mr-2"></i>
           <span>立即下载</span>
@@ -140,10 +133,9 @@
                 <span class="font-medium">看奈飞 for Mac</span>
                 <span class="text-text-secondary text-sm">20 MB</span>
               </div>
-              <!-- 修改：将下载链接改为跳转到浏览器下载 -->
-              <button onclick="openBrowser('https://easylink.cc/3l5m72')" class="block w-full py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200 shadow-md">
+              <a href="https://easylink.cc/3l5m72" class="block w-full py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200 shadow-md">
                 <i class="fa fa-download mr-2"></i>下载 .dmg
-              </button>
+              </a>
               <p class="text-xs text-center text-text-secondary mt-2">适用于 Intel 和 Apple Silicon</p>
             </div>
           </div>
@@ -164,10 +156,9 @@
                 <span class="font-medium">看奈飞 for Windows</span>
                 <span class="text-text-secondary text-sm">20 MB</span>
               </div>
-              <!-- 修改：将下载链接改为跳转到浏览器下载 -->
-              <button onclick="openBrowser('https://easylink.cc/3l5m72')" class="block w-full py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200 shadow-md">
+              <a href="https://easylink.cc/3l5m72" class="block w-full py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200 shadow-md">
                 <i class="fa fa-download mr-2"></i>下载 .exe
-              </button>
+              </a>
               <p class="text-xs text-center text-text-secondary mt-2">安装程序 (推荐)</p>
             </div>
           </div>
@@ -188,10 +179,9 @@
                 <span class="font-medium">看奈飞 for Android</span>
                 <span class="text-text-secondary text-sm">20 MB</span>
               </div>
-              <!-- 修改：将下载链接改为跳转到浏览器下载 -->
-              <button onclick="openBrowser('https://easylink.cc/3l5m72')" class="block w-full py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200 shadow-md">
+              <a href="https://easylink.cc/3l5m72" class="block w-full py-3 bg-primary text-white rounded-lg font-medium text-center hover:bg-primary/90 transition-colors duration-200 shadow-md">
                 <i class="fa fa-download mr-2"></i>下载 .apk
-              </button>
+              </a>
               <p class="text-xs text-center text-text-secondary mt-2">
                 允许"未知来源"安装权限<br>版本兼容 Android 8.0+
               </p>
@@ -214,10 +204,9 @@
                 <span class="font-medium">看奈飞 for iOS</span>
                 <span class="text-text-secondary text-sm">20 MB</span>
               </div>
-              <!-- 修改：将下载链接改为跳转到浏览器下载 -->
-              <button onclick="openBrowser('https://easylink.cc/3l5m72')" class="block w-full py-3 bg-[#333333] text-white rounded-lg font-medium text-center hover:bg-[#404040] transition-colors duration-200 shadow-md">
+              <a href="https://easylink.cc/3l5m72" class="block w-full py-3 bg-[#333333] text-white rounded-lg font-medium text-center hover:bg-[#404040] transition-colors duration-200 shadow-md">
                 <i class="fa fa-apple mr-2"></i>从 App Store 下载
-              </button>
+              </a>
               <p class="text-xs text-center text-text-secondary mt-2">兼容 iPhone 和 iPad</p>
             </div>
           </div>
@@ -296,14 +285,14 @@
   <footer class="bg-darker py-12">
     <div class="container mx-auto px-4">
       <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-6 md:mb-0">
+        <!-- 修改：添加链接使左下角logo可点击回到首页 -->
+        <a href="https://kanetflix.pages.dev/" class="mb-6 md:mb-0">
           <div class="flex items-center">
-            <!-- 替换为实际图标路径 -->
             <img src="/image/KANetflix.png" alt="KANetflix图标" class="w-8 h-8 rounded">
             <span class="ml-2 text-lg font-bold text-gradient">KANetflix</span>
           </div>
           <p class="text-text-secondary text-sm mt-2">© 2025 KANetflix. 保留所有权利。</p>
-        </div>
+        </a>
         
         <div class="flex space-x-6">
           <a href="#" class="text-text-secondary hover:text-text-primary transition-colors duration-200">
@@ -387,15 +376,7 @@
         }
       });
     });
-    
-    // 新增：跳转到浏览器下载的函数
-    function openBrowser(url) {
-      // 显示加载中提示
-      alert('即将跳转到浏览器下载，请稍候...');
-      
-      // 打开新窗口下载
-      window.open(url, '_blank');
-    }
   </script>
 </body>
 </html>
+  
