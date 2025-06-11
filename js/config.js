@@ -8,12 +8,13 @@ const MAX_HISTORY_ITEMS = 5;
 const PASSWORD_CONFIG = {
     localStorageKey: 'passwordVerified',  // 存储验证状态的键名
     verificationTTL: 90 * 24 * 60 * 60 * 1000,  // 验证有效期（90天，约3个月）
+    adminLocalStorageKey: 'adminPasswordVerified'  // 新增的管理员验证状态的键名
 };
 
 // 网站信息配置
 const SITE_CONFIG = {
-    name: 'LibreTV',
-    url: 'https://libretv.is-an.org',
+    name: 'KANetflix',
+    url: 'https://kanetflix.pages.dev/',
     description: '免费在线视频搜索与观看平台',
     logo: 'image/logo.png',
     version: '1.0.3'
