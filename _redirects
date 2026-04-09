@@ -1,0 +1,5 @@
+# Cloudflare Pages 重定向规则
+
+# 代理所有 /api/* 请求到 Functions worker
+/api/search  /api/search  200
+/api/detail  /api/detail  200
