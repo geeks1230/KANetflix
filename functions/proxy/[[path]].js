@@ -177,16 +177,12 @@ export async function onRequest(context) {
         const headers = new Headers({
             'User-Agent': getRandomUserAgent(),
             'Accept': '*/*',
-            // 尝试传递一些原始请求的头信息
             'Accept-Language': request.headers.get('Accept-Language') || 'zh-CN,zh;q=0.9,en;q=0.8',
-            // 尝试设置 Referer 为目标网站的域名，或者传递原始 Referer
             'Referer': request.headers.get('Referer') || new URL(targetUrl).origin
         });
 
         try {
-            // 直接请求目标 URL
             logDebug(`开始直接请求: ${targetUrl}`);
-            // Cloudflare Functions 的 fetch 默认支持重定向
             const response = await fetch(targetUrl, { headers, redirect: 'follow' });
 
             if (!response.ok) {
@@ -195,15 +191,24 @@ export async function onRequest(context) {
                  throw new Error(`HTTP error ${response.status}: ${response.statusText}. URL: ${targetUrl}. Body: ${errorBody.substring(0, 150)}`);
             }
 
-            // 读取响应内容为文本
-            const content = await response.text();
             const contentType = response.headers.get('Content-Type') || '';
-            logDebug(`请求成功: ${targetUrl}, Content-Type: ${contentType}, 内容长度: ${content.length}`);
-            return { content, contentType, responseHeaders: response.headers }; // 同时返回原始响应头
+            const isBinary = isMediaFile(targetUrl, contentType) || 
+                             contentType.includes('application/octet-stream');
+
+            let content;
+            if (isBinary) {
+                // 二进制内容（图片、视频等）用 arrayBuffer 读取，避免 UTF-8 编码损坏
+                content = await response.arrayBuffer();
+                logDebug(`请求成功(二进制): ${targetUrl}, Content-Type: ${contentType}, 大小: ${content.byteLength}`);
+            } else {
+                // 文本内容（JSON、M3U8、HTML等）用 text 读取
+                content = await response.text();
+                logDebug(`请求成功(文本): ${targetUrl}, Content-Type: ${contentType}, 长度: ${content.length}`);
+            }
+            return { content, contentType, responseHeaders: response.headers, isBinary };
 
         } catch (error) {
              logDebug(`请求彻底失败: ${targetUrl}: ${error.message}`);
-            // 抛出更详细的错误
             throw new Error(`请求目标URL失败 ${targetUrl}: ${error.message}`);
         }
     }
@@ -441,16 +446,29 @@ export async function onRequest(context) {
                 const cachedDataJson = await kvNamespace.get(cacheKey); // 直接获取字符串
                 if (cachedDataJson) {
                     logDebug(`[缓存命中] 原始内容: ${targetUrl}`);
-                    const cachedData = JSON.parse(cachedDataJson); // 解析 JSON
-                    const content = cachedData.body;
+                    const cachedData = JSON.parse(cachedDataJson);
+                    const isCachedBinary = cachedData.isBinary || false;
+                    let content;
+                    if (isCachedBinary) {
+                        // base64 解码还原为 ArrayBuffer
+                        const binaryStr = atob(cachedData.body);
+                        const bytes = new Uint8Array(binaryStr.length);
+                        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+                        content = bytes.buffer;
+                    } else {
+                        content = cachedData.body;
+                    }
                     let headers = {};
-                    try { headers = JSON.parse(cachedData.headers); } catch(e){} // 解析头部
+                    try { headers = JSON.parse(cachedData.headers); } catch(e){}
                     const contentType = headers['content-type'] || headers['Content-Type'] || '';
 
-                    if (isM3u8Content(content, contentType)) {
+                    if (!isCachedBinary && isM3u8Content(content, contentType)) {
                         logDebug(`缓存内容是 M3U8，重新处理: ${targetUrl}`);
                         const processedM3u8 = await processM3u8Content(targetUrl, content, 0, env);
                         return createM3u8Response(processedM3u8);
+                    } else if (isCachedBinary) {
+                        logDebug(`从缓存返回二进制内容: ${targetUrl}`);
+                        return new Response(content, { status: 200, headers: new Headers(headers) });
                     } else {
                         logDebug(`从缓存返回非 M3U8 内容: ${targetUrl}`);
                         return createResponse(content, 200, new Headers(headers));
@@ -465,33 +483,46 @@ export async function onRequest(context) {
         }
 
         // --- 实际请求 ---
-        const { content, contentType, responseHeaders } = await fetchContentWithType(targetUrl);
+        const { content, contentType, responseHeaders, isBinary } = await fetchContentWithType(targetUrl);
 
         // --- 写入缓存 (KV) ---
         if (kvNamespace) {
              try {
                  const headersToCache = {};
                  responseHeaders.forEach((value, key) => { headersToCache[key.toLowerCase()] = value; });
-                 const cacheValue = { body: content, headers: JSON.stringify(headersToCache) };
-                 // 注意 KV 写入限制
+                 // 二进制内容用 base64 编码存入 KV
+                 let bodyToCache;
+                 if (isBinary && content instanceof ArrayBuffer) {
+                     bodyToCache = btoa(String.fromCharCode(...new Uint8Array(content)));
+                 } else {
+                     bodyToCache = content;
+                 }
+                 const cacheValue = { body: bodyToCache, headers: JSON.stringify(headersToCache), isBinary: !!isBinary };
                  waitUntil(kvNamespace.put(cacheKey, JSON.stringify(cacheValue), { expirationTtl: CACHE_TTL }));
                  logDebug(`已将原始内容写入缓存: ${targetUrl}`);
             } catch (kvError) {
                  logDebug(`向 KV 写入缓存失败 (${cacheKey}): ${kvError.message}`);
-                 // 写入失败不影响返回结果
             }
         }
 
         // --- 处理响应 ---
-        if (isM3u8Content(content, contentType)) {
+        if (!isBinary && isM3u8Content(content, contentType)) {
             logDebug(`内容是 M3U8，开始处理: ${targetUrl}`);
             const processedM3u8 = await processM3u8Content(targetUrl, content, 0, env);
             return createM3u8Response(processedM3u8);
+        } else if (isBinary) {
+            // 二进制内容（图片、视频等）直接用 ArrayBuffer 返回
+            logDebug(`返回二进制内容: ${targetUrl}, Content-Type: ${contentType}`);
+            const finalHeaders = new Headers(responseHeaders);
+            finalHeaders.set('Cache-Control', `public, max-age=${CACHE_TTL}`);
+            finalHeaders.set("Access-Control-Allow-Origin", "*");
+            finalHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS");
+            finalHeaders.set("Access-Control-Allow-Headers", "*");
+            return new Response(content, { status: 200, headers: finalHeaders });
         } else {
             logDebug(`内容不是 M3U8 (类型: ${contentType})，直接返回: ${targetUrl}`);
             const finalHeaders = new Headers(responseHeaders);
             finalHeaders.set('Cache-Control', `public, max-age=${CACHE_TTL}`);
-            // 添加 CORS 头，确保非 M3U8 内容也能跨域访问（例如图片、字幕文件等）
             finalHeaders.set("Access-Control-Allow-Origin", "*");
             finalHeaders.set("Access-Control-Allow-Methods", "GET, HEAD, POST, OPTIONS");
             finalHeaders.set("Access-Control-Allow-Headers", "*");
