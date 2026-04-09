@@ -48,11 +48,12 @@ const API_SITES = {
         name: '非凡影视',
         detail: 'http://ffzy5.tv', 
     },
-    heimuer: {
-        api: 'https://json.heimuer.xyz/api.php/provide/vod',
-        name: '黑木耳',
-        detail: 'https://heimuer.tv', 
-    },
+// heimuer 已下线(2026年4月)，改用无尽资源
+heimuer: {
+    api: 'https://api.wujinapi.me/api.php/provide/vod',
+    name: '无尽资源',
+    detail: '', 
+},
     zy360: {
         api: 'https://360zy.com/api.php/provide/vod',
         name: '360资源',
